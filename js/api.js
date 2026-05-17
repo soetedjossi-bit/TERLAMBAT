@@ -51,7 +51,7 @@ async function getAttendanceFromGoogleSheet() {
 
 // Google Apps Script deployment template
 const GAS_SCRIPT_TEMPLATE = `
-const SHEET_ID = 'YOUR_SHEET_ID'; // Ganti dengan Sheet ID Anda
+const SHEET_ID = '19BQ3ABAljLcsi9XzoctKTJO2eN8BaUdvD5g5ODG3zU0'; // Ganti dengan Sheet ID Anda
 const SHEET_NAME = 'Presensi';
 
 function doPost(e) {
