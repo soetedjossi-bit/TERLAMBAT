@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Data - Aplikasi Presensi Siswa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            color: #6366f1;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #1e40af;
+        }
+        .demo-data {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .status-tepat {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .status-terlambat {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .status-sakit {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .status-izin {
+            background: rgba(168, 85, 247, 0.1);
+            color: #a855f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .success-message {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #065f46;
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Demo Data - Aplikasi Presensi Siswa</h1>
+        
+        <div class="info-box">
+            ℹ️ Halaman ini untuk mengisi demo data ke aplikasi presensi. Data akan disimpan ke localStorage browser Anda.
+        </div>
+        
+        <div id="successMessage" class="success-message">✓ Demo data berhasil ditambahkan! Buka aplikasi presensi dan lihat data di Dashboard.</div>
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="loadDemoData()">📥 Load Demo Data (20 Record)</button>
+            <button class="btn-primary" onclick="loadMinimalDemo()">📥 Load Minimal Demo (5 Record)</button>
+            <button class="btn-danger" onclick="clearDemo()">🗑️ Hapus Semua Demo Data</button>
+        </div>
+        
+        <div class="demo-data">
+            <h2>Demo Data yang Akan Ditambahkan</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Waktu Tiba</th>
+                        <th>Status</th>
+                        <th>Durasi</th>
+                        <th>Catatan</th>
+                    </tr>
+                </thead>
+                <tbody id="demoTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const demoData = [
+            {
+                studentName: 'Budi Santoso',
+                studentClass: '12A',
+                nisn: '1234567890',
+                arrivalTime: '07:00',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Siti Nurhaliza',
+                studentClass: '12A',
+                nisn: '1234567891',
+                arrivalTime: '07:15',
+                status: 'Terlambat',
+                duration: 15,
+                notes: 'Kemacetan di jalan',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Ahmad Wijaya',
+                studentClass: '12B',
+                nisn: '1234567892',
+                arrivalTime: '07:30',
+                status: 'Terlambat',
+                duration: 30,
+                notes: 'Bangun kesiangan',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Rina Wijaya',
+                studentClass: '12A',
+                nisn: '1234567893',
+                arrivalTime: '08:00',
+                status: 'Sakit',
+                duration: 0,
+                notes: 'Demam tinggi',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Dewi Kusuma',
+                studentClass: '12B',
+                nisn: '1234567894',
+                arrivalTime: '08:15',
+                status: 'Izin',
+                duration: 0,
+                notes: 'Ada acara keluarga',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Roni Septiana',
+                studentClass: '12C',
+                nisn: '1234567895',
+                arrivalTime: '07:05',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Hana Putri',
+                studentClass: '12A',
+                nisn: '1234567896',
+                arrivalTime: '07:20',
+                status: 'Terlambat',
+                duration: 20,
+                notes: 'Perjalanan lama',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Joko Subroto',
+                studentClass: '12B',
+                nisn: '1234567897',
+                arrivalTime: '07:10',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Lisa Manobal',
+                studentClass: '12C',
+                nisn: '1234567898',
+                arrivalTime: '07:45',
+                status: 'Terlambat',
+                duration: 45,
+                notes: 'Mobil mogok',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Muhammad Rizki',
+                studentClass: '12A',
+                nisn: '1234567899',
+                arrivalTime: '06:55',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir lebih awal',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            {
+                studentName: 'Citra Dewi',
+                studentClass: '12B',
+                nisn: '1234567900',
+                arrivalTime: '07:25',
+                status: 'Terlambat',
+                duration: 25,
+                notes: 'Ada urusan mendadak',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: new Date().toISOString()
+            },
+            // Data hari kemarin
+            {
+                studentName: 'Budi Santoso',
+                studentClass: '12A',
+                nisn: '1234567890',
+                arrivalTime: '07:00',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Siti Nurhaliza',
+                studentClass: '12A',
+                nisn: '1234567891',
+                arrivalTime: '07:20',
+                status: 'Terlambat',
+                duration: 20,
+                notes: 'Kemacetan',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Ahmad Wijaya',
+                studentClass: '12B',
+                nisn: '1234567892',
+                arrivalTime: '07:00',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Rina Wijaya',
+                studentClass: '12A',
+                nisn: '1234567893',
+                arrivalTime: '07:15',
+                status: 'Terlambat',
+                duration: 15,
+                notes: 'Tidur lebih lama',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Dewi Kusuma',
+                studentClass: '12B',
+                nisn: '1234567894',
+                arrivalTime: '07:10',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Roni Septiana',
+                studentClass: '12C',
+                nisn: '1234567895',
+                arrivalTime: '07:35',
+                status: 'Terlambat',
+                duration: 35,
+                notes: 'Sepeda mogok',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Hana Putri',
+                studentClass: '12A',
+                nisn: '1234567896',
+                arrivalTime: '06:55',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir lebih awal',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Joko Subroto',
+                studentClass: '12B',
+                nisn: '1234567897',
+                arrivalTime: '07:22',
+                status: 'Terlambat',
+                duration: 22,
+                notes: 'Perjalanan lama',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                studentName: 'Lisa Manobal',
+                studentClass: '12C',
+                nisn: '1234567898',
+                arrivalTime: '07:05',
+                status: 'Tepat Waktu',
+                duration: 0,
+                notes: 'Hadir tepat waktu',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('id-ID'),
+                timestamp: new Date(Date.now() - 86400000).toISOString()
+            }
+        ];
+
+        function displayDemoData() {
+            const tbody = document.getElementById('demoTable');
+            tbody.innerHTML = demoData.map((item, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${item.date}</td>
+                    <td>${item.studentName}</td>
+                    <td>${item.studentClass}</td>
+                    <td>${item.arrivalTime}</td>
+                    <td><span class="status-${item.status.toLowerCase().replace(/\s+/g, '')}">${item.status}</span></td>
+                    <td>${item.duration ? item.duration + ' menit' : '-'}</td>
+                    <td>${item.notes}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadDemoData() {
+            const existing = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            const updated = [...existing, ...demoData];
+            localStorage.setItem('attendanceData', JSON.stringify(updated));
+            showSuccess();
+        }
+
+        function loadMinimalDemo() {
+            const minimal = demoData.slice(0, 5);
+            const existing = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            const updated = [...existing, ...minimal];
+            localStorage.setItem('attendanceData', JSON.stringify(updated));
+            showSuccess();
+        }
+
+        function clearDemo() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua data demo?')) {
+                localStorage.removeItem('attendanceData');
+                alert('✓ Semua demo data telah dihapus!');
+            }
+        }
+
+        function showSuccess() {
+            const message = document.getElementById('successMessage');
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 4000);
+        }
+
+        // Display demo data on page load
+        window.addEventListener('DOMContentLoaded', displayDemoData);
+    </script>
+</body>
+</html>
