@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Presensi Siswa Terlambat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-clipboard-check"></i>
+                <span>PresensiApp</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active" data-tab="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-tab="history">
+                    <i class="fas fa-history"></i> Riwayat
+                </a>
+                <a href="#" class="nav-link" data-tab="reports">
+                    <i class="fas fa-chart-bar"></i> Laporan
+                </a>
+                <a href="#" class="nav-link" data-tab="settings">
+                    <i class="fas fa-cog"></i> Pengaturan
+                </a>
+            </div>
+            <div class="nav-user" id="userProfile">
+                <i class="fas fa-user-circle"></i>
+                <span id="userDisplayName">Guest</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- DASHBOARD TAB -->
+        <section id="dashboard" class="tab-content active">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div>
+                        <h1>📚 Presensi Siswa</h1>
+                        <p class="subtitle">Sistem Pencatatan Kehadiran Realtime</p>
+                    </div>
+                    <div class="clock-container">
+                        <div class="clock" id="clock">00:00:00</div>
+                        <div class="date" id="dateDisplay">--/--/----</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main">
+                <!-- Input Section -->
+                <section class="card input-section">
+                    <h2><i class="fas fa-edit"></i> Cek Kehadiran Siswa</h2>
+                    <form id="attendanceForm" class="form-group">
+                        <div class="form-row">
+                            <div class="form-input">
+                                <label for="studentName">Nama Siswa *</label>
+                                <input type="text" id="studentName" placeholder="Masukkan nama siswa" required>
+                            </div>
+                            <div class="form-input">
+                                <label for="studentClass">Kelas *</label>
+                                <input type="text" id="studentClass" placeholder="Misal: 12A" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-input">
+                                <label for="nisn">NISN</label>
+                                <input type="text" id="nisn" placeholder="Nomor Induk Siswa">
+                            </div>
+                            <div class="form-input">
+                                <label for="arrivalTime">Waktu Tiba *</label>
+                                <input type="time" id="arrivalTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-input">
+                                <label for="status">Status *</label>
+                                <select id="status" required>
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="Tepat Waktu">✓ Tepat Waktu</option>
+                                    <option value="Terlambat">⏰ Terlambat</option>
+                                    <option value="Sakit">🏥 Sakit</option>
+                                    <option value="Izin">📋 Izin</option>
+                                </select>
+                            </div>
+                            <div class="form-input">
+                                <label for="duration">Durasi Terlambat (menit)</label>
+                                <input type="number" id="duration" placeholder="Misal: 15" min="0">
+                            </div>
+                        </div>
+
+                        <div class="form-input">
+                            <label for="notes">Catatan (Opsional)</label>
+                            <textarea id="notes" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Catat Presensi
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Statistics -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalPresent">0</div>
+                            <div class="stat-label">Hadir Tepat Waktu</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalLate">0</div>
+                            <div class="stat-label">Terlambat</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalAbsent">0</div>
+                            <div class="stat-label">Tidak Hadir</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalToday">0</div>
+                            <div class="stat-label">Total Hari Ini</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Attendance -->
+                <section class="card attendance-list">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list"></i> Presensi Terbaru</h2>
+                        <button id="refreshBtn" class="btn-icon" title="Refresh Data">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="recentAttendance" class="list-container">
+                        <p class="empty-state"><i class="fas fa-inbox"></i> Belum ada data presensi</p>
+                    </div>
+                </section>
+            </main>
+        </section>
+
+        <!-- HISTORY TAB -->
+        <section id="history" class="tab-content">
+            <header class="header">
+                <h1><i class="fas fa-history"></i> Riwayat Presensi</h1>
+            </header>
+
+            <div class="main">
+                <div class="card">
+                    <div class="section-header">
+                        <h2>Filter Data</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-input">
+                            <label for="filterClass">Kelas</label>
+                            <input type="text" id="filterClass" placeholder="Filter berdasarkan kelas">
+                        </div>
+                        <div class="form-input">
+                            <label for="filterStatus">Status</label>
+                            <select id="filterStatus">
+                                <option value="">Semua Status</option>
+                                <option value="Tepat Waktu">Tepat Waktu</option>
+                                <option value="Terlambat">Terlambat</option>
+                                <option value="Sakit">Sakit</option>
+                                <option value="Izin">Izin</option>
+                            </select>
+                        </div>
+                        <div class="form-input">
+                            <label for="filterDate">Tanggal</label>
+                            <input type="date" id="filterDate">
+                        </div>
+                        <div class="form-input" style="align-self: flex-end;">
+                            <button class="btn btn-primary" id="filterBtn">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-header">
+                        <h2>Data Lengkap</h2>
+                        <button id="exportExcelBtn" class="btn btn-success">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal</th>
+                                    <th>Waktu</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Kelas</th>
+                                    <th>NISN</th>
+                                    <th>Status</th>
+                                    <th>Durasi</th>
+                                    <th>Catatan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="10" class="empty-state">Tidak ada data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REPORTS TAB -->
+        <section id="reports" class="tab-content">
+            <header class="header">
+                <h1><i class="fas fa-chart-bar"></i> Laporan & Analitik</h1>
+            </header>
+
+            <div class="main">
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="card">
+                        <h2>Status Presensi Hari Ini</h2>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+
+                    <div class="card">
+                        <h2>Tren Terlambat (7 Hari)</h2>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="card">
+                    <h2><i class="fas fa-bars"></i> Ringkasan Statistik</h2>
+                    <div class="stats-summary">
+                        <div class="summary-item">
+                            <span class="label">Total Presensi Minggu Ini</span>
+                            <span class="value" id="totalWeek">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Terlambat Minggu Ini</span>
+                            <span class="value" id="totalLateWeek">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Rata-rata Durasi Terlambat</span>
+                            <span class="value" id="avgDuration">0 menit</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Siswa Paling Sering Terlambat</span>
+                            <span class="value" id="topLateStudent">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Reports -->
+                <div class="card">
+                    <h2><i class="fas fa-download"></i> Export Laporan</h2>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="exportPdfBtn">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                        <button class="btn btn-success" id="exportCsvBtn">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </button>
+                        <button class="btn btn-info" id="sendEmailBtn">
+                            <i class="fas fa-envelope"></i> Kirim Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SETTINGS TAB -->
+        <section id="settings" class="tab-content">
+            <header class="header">
+                <h1><i class="fas fa-cog"></i> Pengaturan</h1>
+            </header>
+
+            <div class="main">
+                <!-- Login/Profile Section -->
+                <div class="card">
+                    <h2><i class="fas fa-user"></i> Profil Pengguna</h2>
+                    <div id="loginSection" style="display: none;">
+                        <div class="form-group">
+                            <div class="form-input">
+                                <label for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" placeholder="Masukkan email Anda">
+                            </div>
+                            <div class="form-input">
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" placeholder="Masukkan password">
+                            </div>
+                            <div class="form-input">
+                                <label for="loginName">Nama Lengkap</label>
+                                <input type="text" id="loginName" placeholder="Nama lengkap">
+                            </div>
+                            <button class="btn btn-primary" id="loginBtn">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+                    </div>
+                    <div id="profileSection">
+                        <div class="profile-card">
+                            <div class="profile-avatar" id="profileAvatar">A</div>
+                            <div class="profile-info">
+                                <p class="profile-name" id="profileName">Admin User</p>
+                                <p class="profile-email" id="profileEmail">admin@example.com</p>
+                                <button class="btn btn-danger" id="logoutBtn">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Sheet Settings -->
+                <div class="card">
+                    <h2><i class="fas fa-link"></i> Integrasi Google Sheet</h2>
+                    <div class="form-group">
+                        <div class="form-input">
+                            <label for="googleSheetUrl">URL Google Apps Script</label>
+                            <input type="url" id="googleSheetUrl" placeholder="Paste URL deployment Google Apps Script">
+                            <small>Dapatkan URL dari Google Apps Script deployment</small>
+                        </div>
+                        <div class="form-input">
+                            <label for="sheetId">Google Sheet ID</label>
+                            <input type="text" id="sheetId" placeholder="Paste Sheet ID">
+                            <small>Ambil dari URL Google Sheet</small>
+                        </div>
+                        <button class="btn btn-primary" id="saveGoogleSettings">
+                            <i class="fas fa-save"></i> Simpan Pengaturan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- School Settings -->
+                <div class="card">
+                    <h2><i class="fas fa-school"></i> Pengaturan Sekolah</h2>
+                    <div class="form-group">
+                        <div class="form-input">
+                            <label for="schoolName">Nama Sekolah</label>
+                            <input type="text" id="schoolName" placeholder="Nama sekolah">
+                        </div>
+                        <div class="form-input">
+                            <label for="startTime">Jam Masuk (HH:MM)</label>
+                            <input type="time" id="startTime" value="07:00">
+                        </div>
+                        <div class="form-input">
+                            <label for="lateThreshold">Batas Terlambat (menit)</label>
+                            <input type="number" id="lateThreshold" value="10" min="1">
+                        </div>
+                        <button class="btn btn-primary" id="saveSchoolSettings">
+                            <i class="fas fa-save"></i> Simpan Pengaturan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="card">
+                    <h2><i class="fas fa-database"></i> Manajemen Data</h2>
+                    <div class="button-group">
+                        <button class="btn btn-warning" id="importDataBtn">
+                            <i class="fas fa-upload"></i> Import Data
+                        </button>
+                        <button class="btn btn-info" id="backupDataBtn">
+                            <i class="fas fa-download"></i> Backup Data
+                        </button>
+                        <button class="btn btn-danger" id="clearDataBtn">
+                            <i class="fas fa-trash"></i> Hapus Semua Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal untuk Login -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login ke Aplikasi</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="form-input">
+                        <label for="modalEmail">Email</label>
+                        <input type="email" id="modalEmail" placeholder="admin@example.com">
+                    </div>
+                    <div class="form-input">
+                        <label for="modalPassword">Password</label>
+                        <input type="password" id="modalPassword" placeholder="Password">
+                    </div>
+                    <div class="form-input">
+                        <label for="modalName">Nama Lengkap</label>
+                        <input type="text" id="modalName" placeholder="Nama Anda">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancelBtn">Batal</button>
+                <button class="btn btn-primary" id="modalLoginBtn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
